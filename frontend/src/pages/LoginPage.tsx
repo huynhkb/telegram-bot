@@ -17,11 +17,13 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    // 1. Sign in with Supabase
     const { data, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password
     })
+
+    console.log('sign in data:', JSON.stringify(data))
+    console.log('sign in error:', signInError)
 
     if (signInError) {
       setError(signInError.message)
@@ -29,12 +31,18 @@ export default function LoginPage() {
       return
     }
 
-    // 2. Check if the user is an admin
+    // Check session immediately after login
+    const { data: { session } } = await supabase.auth.getSession()
+    console.log('session after login:', JSON.stringify(session))
+    console.log('access token:', session?.access_token)
+
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_admin')
       .eq('id', data.user.id)
       .single()
+
+    console.log('profile:', JSON.stringify(profile))
 
     if (!profile?.is_admin) {
       setError('You are not authorized to access this dashboard.')
@@ -43,7 +51,6 @@ export default function LoginPage() {
       return
     }
 
-    // 3. Admin confirmed, go to dashboard
     navigate('/dashboard')
   }
 
