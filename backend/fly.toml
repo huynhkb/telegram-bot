@@ -8,8 +8,6 @@ primary_region = 'iad'
 
 [build]
 
-cat backend/fly.toml | grep internal_port
-
 [http_service]
   internal_port = 3000
   force_https = true
