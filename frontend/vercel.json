@@ -1,5 +1,5 @@
 {
-  "frontend": [
+  "routes": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
