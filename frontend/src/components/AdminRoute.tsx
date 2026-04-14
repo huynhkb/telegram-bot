@@ -12,19 +12,18 @@ export default function AdminRoute({ children }: Props) {
 
   useEffect(() => {
     const checkAdmin = async () => {
-      // 1. Get current user
-      const { data: { user } } = await supabase.auth.getUser()
+      // Wait for Supabase to restore session
+      const { data: { session } } = await supabase.auth.getSession()
 
-      if (!user) {
+      if (!session) {
         navigate('/login')
         return
       }
 
-      // 2. Query profiles table
       const { data: profile } = await supabase
         .from('profiles')
         .select('is_admin')
-        .eq('id', user.id)
+        .eq('id', session.user.id)
         .single()
 
       if (!profile?.is_admin) {
@@ -35,13 +34,38 @@ export default function AdminRoute({ children }: Props) {
       setAuthorized(true)
     }
 
+    // Also listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_OUT' || !session) {
+          navigate('/login')
+          return
+        }
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_admin')
+          .eq('id', session.user.id)
+          .single()
+
+        if (!profile?.is_admin) {
+          navigate('/login')
+          return
+        }
+
+        setAuthorized(true)
+      }
+    )
+
     checkAdmin()
+
+    return () => subscription.unsubscribe()
   }, [navigate])
 
   if (!authorized) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Verifying access...</p>
+      <div className="min-h-screen flex items-center justify-center bg-zinc-950">
+        <p className="text-zinc-500">Verifying access...</p>
       </div>
     )
   }

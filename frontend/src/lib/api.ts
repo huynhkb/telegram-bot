@@ -5,7 +5,16 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
 // Helper to get the auth header
 async function getAuthHeader() {
   const { data: { session } } = await supabase.auth.getSession()
-  if (!session) throw new Error('Not logged in')
+  
+  console.log('session in getAuthHeader:', session?.access_token ? 'token exists' : 'NO TOKEN')
+  
+  if (!session) {
+    const { data: { session: refreshed } } = await supabase.auth.refreshSession()
+    console.log('refreshed session:', refreshed?.access_token ? 'token exists' : 'STILL NO TOKEN')
+    if (!refreshed) throw new Error('Not logged in')
+    return `Bearer ${refreshed.access_token}`
+  }
+
   return `Bearer ${session.access_token}`
 }
 
