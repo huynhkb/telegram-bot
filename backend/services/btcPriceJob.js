@@ -41,8 +41,20 @@ async function postBtcPrice() {
 
 module.exports = () => {
   console.log('[BTC Job] Starting hourly BTC price job...')
-  postBtcPrice()
-  setInterval(postBtcPrice, 60 * 60 * 1000)
+
+  // Align to the next top-of-hour boundary so restarts don't cause double-posts
+  const now = new Date()
+  const msUntilNextHour =
+    (60 - now.getMinutes()) * 60 * 1000 -
+    now.getSeconds() * 1000 -
+    now.getMilliseconds()
+
+  console.log(`[BTC Job] First post in ${Math.round(msUntilNextHour / 60000)} min`)
+
+  setTimeout(() => {
+    postBtcPrice()
+    setInterval(postBtcPrice, 60 * 60 * 1000)
+  }, msUntilNextHour)
 }
 
 // Also export the function itself for manual triggering
