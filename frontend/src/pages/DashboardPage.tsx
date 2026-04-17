@@ -4,14 +4,12 @@ import type { Message } from '../types/messages'
 import ComposeBox from '../components/ComposeBox'
 import MessageLog from '../components/MessageLog'
 import LogoutButton from '../components/LogoutButton'
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 
 export default function DashboardPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [loadingMessages, setLoadingMessages] = useState(true)
   const [fetchError, setFetchError] = useState('')
-  
-  // Load message history on mount
+
   useEffect(() => {
     const loadMessages = async () => {
       try {
@@ -27,50 +25,48 @@ export default function DashboardPage() {
     loadMessages()
   }, [])
 
-  // Called by ComposeBox when a message is successfully sent
-  // Prepend to local state instead of refetching from server
   const handleMessageSent = (newMessage: Message) => {
     setMessages((prev) => [newMessage, ...prev])
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-2xl mx-auto flex flex-col gap-6">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100">
 
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Channel Dashboard</h1>
+      {/* Sticky header */}
+      <header className="sticky top-0 z-10 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm">
+        <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="text-amber-500 text-lg leading-none select-none">₿</span>
+            <span className="font-semibold text-sm text-zinc-100 tracking-tight">Channel Dashboard</span>
+          </div>
           <LogoutButton />
         </div>
+      </header>
 
-        {/* Compose Box */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Send Message</CardTitle>
-          </CardHeader>
-          <CardContent>
+      {/* Main content */}
+      <main className="max-w-2xl mx-auto px-6 py-8 flex flex-col gap-8">
+
+        {/* Compose section */}
+        <section className="flex flex-col gap-3">
+          <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">Send Message</h2>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
             <ComposeBox onMessageSent={handleMessageSent} />
-          </CardContent>
-        </Card>
+          </div>
+        </section>
 
-        {/* Message Log */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Message Log</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {fetchError ? (
-              <p className="text-sm text-red-500">{fetchError}</p>
-            ) : (
-              <MessageLog messages={messages} loading={loadingMessages} />
-            )}
-          </CardContent>
-        </Card>
+        {/* Message log section */}
+        <section className="flex flex-col gap-3">
+          <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">Message Log</h2>
+          {fetchError ? (
+            <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+              {fetchError}
+            </p>
+          ) : (
+            <MessageLog messages={messages} loading={loadingMessages} />
+          )}
+        </section>
 
-      </div>
+      </main>
     </div>
   )
-
-  
 }
-

@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import { Button } from './ui/button'
-import { Textarea } from './ui/textarea'
 import { sendMessage } from '../lib/api'
 import type { Message } from '../types/messages'
 
@@ -20,8 +18,8 @@ export default function ComposeBox({ onMessageSent }: Props) {
 
     try {
       const { message } = await sendMessage(content.trim())
-      onMessageSent(message) // bubble up to parent to update local state
-      setContent('')         // clear the box
+      onMessageSent(message)
+      setContent('')
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -30,7 +28,6 @@ export default function ComposeBox({ onMessageSent }: Props) {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Send on Ctrl+Enter or Cmd+Enter
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       handleSend()
     }
@@ -38,29 +35,33 @@ export default function ComposeBox({ onMessageSent }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <Textarea
-        placeholder="Type your message here... (Ctrl+Enter to send)"
+      <textarea
+        placeholder="Type your message... (Ctrl+Enter to send)"
         value={content}
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={handleKeyDown}
         rows={4}
         disabled={loading}
+        className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 resize-none focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/50 disabled:opacity-50 transition-all"
       />
 
       {error && (
-        <p className="text-sm text-red-500">{error}</p>
+        <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+          {error}
+        </p>
       )}
 
       <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-400">
+        <span className="text-xs text-zinc-600">
           {content.length} characters
         </span>
-        <Button
+        <button
           onClick={handleSend}
           disabled={loading || !content.trim()}
+          className="bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-zinc-950 font-semibold text-xs rounded-lg px-4 py-2 transition-colors"
         >
           {loading ? 'Sending...' : 'Send to Channel'}
-        </Button>
+        </button>
       </div>
     </div>
   )

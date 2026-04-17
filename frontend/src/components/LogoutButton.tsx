@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { Button } from './ui/button'
 
 export default function LogoutButton() {
   const navigate = useNavigate()
@@ -11,8 +10,11 @@ export default function LogoutButton() {
   }
 
   return (
-    <Button variant="outline" onClick={handleLogout}>
+    <button
+      onClick={handleLogout}
+      className="text-xs font-medium text-zinc-500 hover:text-zinc-300 border border-zinc-800 hover:border-zinc-700 rounded-lg px-3 py-1.5 transition-colors"
+    >
       Logout
-    </Button>
+    </button>
   )
 }
